@@ -8,13 +8,13 @@
 
 
 
-#define BASE_PIN    PA3
-#define GRIPPER_PIN PA7
+#define P_PIN    PB7
+#define R_PIN PA7
 
-#define S1_Min 0
-#define S1_Max 90
-#define S2_Max  90
-#define S2_Min   0
+#define SP_Min 70
+#define SP_Max 120
+#define SR_Max  180
+#define SR_Min   0
 
 
 #define DAMPING     10
@@ -37,8 +37,8 @@ ros::NodeHandle_<ArduinoHardware,
                   nh;                             
 
 
-Servo J1;  // Define an instance of of Servo with the name of "MG995_Servo"
-Servo J2;  // Define an instance of of Servo with the name of "MG995_Servo"
+Servo JP;  // Define an instance of of Servo with the name of "MG995_Servo"
+Servo JR;  // Define an instance of of Servo with the name of "MG995_Servo"
 
 
 
@@ -50,8 +50,8 @@ void damp_write(Servo S, int servo_angle, int setpoint_angle);
 
 void callback_joints(const std_msgs::Int16MultiArray &arm_msg)
 {
-  arm_joints[0] = constrain(abs(arm_msg.data[0]), S2_Min, S2_Max);
-  arm_joints[1] = constrain(abs(arm_msg.data[1]), S1_Min, S1_Max);
+  arm_joints[0] = constrain(abs(arm_msg.data[0]), SR_Min, SR_Max);
+  arm_joints[1] = constrain(abs(arm_msg.data[1]), SP_Min, SP_Max);
 
   
 
@@ -63,8 +63,8 @@ ros::Subscriber<std_msgs::Int16MultiArray>  arm_sub("arm_joints",&callback_joint
 
 void setup() 
 {
-    J1.attach(BASE_PIN);  
-    J2.attach(GRIPPER_PIN);
+    JP.attach(P_PIN);  
+    JR.attach(R_PIN);
 
 
     nh.initNode();
@@ -78,8 +78,8 @@ void setup()
 void loop() {
   nh.spinOnce();
 
-  damp_write(J1, arm_state[0], arm_joints[0] );
-  damp_write(J2, arm_state[1], arm_joints[1] );
+  damp_write(JP, arm_state[0], arm_joints[0] );
+  damp_write(JR, arm_state[1], arm_joints[1] );
   
   arm_state[0] = arm_joints[0];
   arm_state[1] = arm_joints[1];
@@ -87,6 +87,8 @@ void loop() {
   
 }
 
+// servo_angle is the current angle
+// setpoint_angle is the target
 void damp_write(Servo S, int servo_angle, int setpoint_angle)
 {
   if (setpoint_angle > servo_angle)
