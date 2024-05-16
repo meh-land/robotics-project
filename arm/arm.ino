@@ -50,8 +50,8 @@ void damp_write(Servo S, int servo_angle, int setpoint_angle);
 
 void callback_joints(const std_msgs::Int16MultiArray &arm_msg)
 {
-  arm_joints[0] = constrain(abs(arm_msg.data[0]), SR_Min, SR_Max);
-  arm_joints[1] = constrain(abs(arm_msg.data[1]), SP_Min, SP_Max);
+  arm_joints[0] = arm_msg.data[0];
+  arm_joints[1] = arm_msg.data[1];
 
   
 
